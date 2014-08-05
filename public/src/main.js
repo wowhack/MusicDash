@@ -7,7 +7,8 @@ var canvas = document.getElementById("canvas"),
   ctx = canvas.getContext("2d"),
   width = 1000,
   height = 600,
-  boxWidth = 100,
+  BeatsPerScreen = 10,
+  boxWidth = width/BeatsPerScreen,
   BPM,
   player = {
     x: 100,
@@ -29,6 +30,8 @@ var time;
 var timeSinceLastBPM = 0;
 var msBetweenBeats;
 
+var speed;
+
 canvas.width = width;
 canvas.height = height;
 
@@ -49,8 +52,9 @@ function init(){
   );
 }
 function updatePublicVar(tempo){
-  BMP = tempo
-  msBetweenBeats = 1000 / (BMP/60);
+  BPM = tempo
+  // msBetweenBeats = 1000 / (BPM/60);
+  speed = BPM/60 * boxWidth;
 }
 
 function update() {
@@ -101,8 +105,8 @@ function logic(dt,space,up,w, callback){
     }
 
     //moves a terrainBox in X-axis
-    boxes[i].x = boxes[i].x - 2;
-
+    boxes[i].x = boxes[i].x - (dt/1000) * speed;
+    // console.log((dt/1000) * speed);
     //Removes Terrainboxes outside screen and spawn a new one.
     if(boxes[i].x < -boxWidth){
       boxes.splice(i, 1);
