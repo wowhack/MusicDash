@@ -1,128 +1,150 @@
-//
-// Supermarket Catastrophy
-//
-Physics({ timestep: 3 }, function (world) {
+(function () {
+    var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+    window.requestAnimationFrame = requestAnimationFrame;
+})();
 
-    var viewWidth = 500
-        ,viewHeight = 300
-        // bounds of the window
-        ,viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight)
-        ,edgeBounce
-        ,renderer
-        ;
+var canvas = document.getElementById("canvas"),
+    ctx = canvas.getContext("2d"),
+    width = 1000,
+    height = 600,
+    boxWidth = 100,
+    player = {
+        x: width / 2,
+        y: 0,
+        width: 20,
+        height: 40,
+        jumpSpeed: 12,
+        velY: 0,
+        jumping: false,
+        grounded: false
+    },
+    keys = [],
+    friction = 0.8,
+    gravity = 0.3;
 
-    // create a renderer
-    renderer = Physics.renderer('canvas', {
-        el: 'viewport'
-        ,width: viewWidth
-        ,height: viewHeight
-    });
+var boxes = [];
 
-    // add the renderer
-    world.add(renderer);
-    // render on each step
-    world.on('step', function () {
-        world.render();
-    });
+canvas.width = width;
+canvas.height = height;
 
-    // constrain objects to these bounds
-    edgeBounce = Physics.behavior('edge-collision-detection', {
-        aabb: viewportBounds
-        ,restitution: 0.2
-        ,cof: 0.8
-    });
+initTerrain();
 
-    // resize events
-    window.addEventListener('resize', function () {
-
-        viewWidth = window.innerWidth;
-        viewHeight = window.innerHeight;
-
-        renderer.el.width = viewWidth;
-        renderer.el.height = viewHeight;
-
-        viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
-        // update the boundaries
-        edgeBounce.setAABB(viewportBounds);
-
-    }, true);
-
-    // create some bodies
-    // projectile
-    projectile = Physics.body('circle', {
-        x: -20
-        ,y: viewHeight - 150
-        ,vx: 2
-        ,mass: 4
-        ,radius: 20
-        ,restitution: 0.99
-        ,angularVelocity: 0
-        ,styles: {
-            fillStyle: '#d33682'
-            ,angleIndicator: '#751b4b'
+function update() {
+    // check keys
+    if (keys[38] || keys[32] || keys[87]) {
+        // up arrow or space
+        if (!player.jumping && player.grounded) {
+            player.jumping = true;
+            player.grounded = false;
+            player.velY = -player.jumpSpeed;
         }
-    });
-
-    // squares
-    var squares = [];
-    for ( var i = 0, l = 24; i < l; ++i ){
-
-        squares.push( Physics.body('rectangle', {
-            width: 40
-            ,height: 40
-            ,x: 42 * (i / 6 | 0) + viewWidth - 40 * 8
-            ,y: 40 * (i % 6) + viewHeight - 40 * 6 + 15
-            ,vx: 0
-            ,cof: 0.99
-            ,restitution: 0.99
-            ,styles: {
-                fillStyle: '#b58900'
-                ,angleIndicator: '#624501'
-            }
-        }));
     }
 
-    world.add( squares );
+    player.velY += gravity;
 
-    setTimeout(function(){
+    ctx.clearRect(0, 0, width, height);
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+    
+    player.grounded = false;
+    for (var i = 0; i < boxes.length; i++) {
+        ctx.rect(boxes[i].x, boxes[i].y, boxes[i].width, boxes[i].height);
+        
+        var dir = colCheck(player, boxes[i]);
 
-        world.add( projectile );
-
-    }, 2000);
-
-    // add some fun interaction
-    var attractor = Physics.behavior('attractor', {
-        order: 0,
-        strength: 0.002
-    });
-    world.on({
-        'interact:poke': function( pos ){
-            attractor.position( pos );
-            world.add( attractor );
+        if (dir === "l" || dir === "r") {
+            player.jumping = false;
+        } else if (dir === "b") {
+            player.grounded = true;
+            player.jumping = false;
+        } else if (dir === "t") {
+            player.velY *= -1;
         }
-        ,'interact:move': function( pos ){
-            attractor.position( pos );
+
+      //moves a terrainBox in X-axis
+      boxes[i].x = boxes[i].x - 2;
+
+      //Removes Terrainboxes outside screen and spawn a new one.
+      if(boxes[i].x < -boxWidth){
+        boxes.splice(i, 1);
+        createTerrainBox(Math.floor((Math.random() * height) + 1), width);
+      }
+    }
+    
+    if(player.grounded){
+         player.velY = 0;
+    }
+  
+    player.y += player.velY;
+
+    //Code to render scene.
+    ctx.fill();
+    ctx.fillStyle = "red";
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+
+    requestAnimationFrame(update);
+}
+
+function createTerrainBox(Y,X){
+  boxHeight = height - Y;
+  boxes.push({
+    x: X,
+    y: Y,
+    width: boxWidth,
+    height: boxHeight
+  });
+}
+
+function initTerrain(){
+  for(var i = 0; i < 10; i++){
+    createTerrainBox(Math.floor((Math.random() * height) + 1), i * 100);
+  }
+}
+
+function colCheck(shapeA, shapeB) {
+    // get the vectors to check against
+    var vX = (shapeA.x + (shapeA.width / 2)) - (shapeB.x + (shapeB.width / 2)),
+        vY = (shapeA.y + (shapeA.height / 2)) - (shapeB.y + (shapeB.height / 2)),
+        // add the half widths and half heights of the objects
+        hWidths = (shapeA.width / 2) + (shapeB.width / 2),
+        hHeights = (shapeA.height / 2) + (shapeB.height / 2),
+        colDir = null;
+
+    // if the x and y vector are less than the half width or half height, they we must be inside the object, causing a collision
+    if (Math.abs(vX) < hWidths && Math.abs(vY) < hHeights) {
+        // figures out on which side we are colliding (top, bottom, left, or right)
+        var oX = hWidths - Math.abs(vX),
+            oY = hHeights - Math.abs(vY);
+        if (oX >= oY) {
+            if (vY > 0) {
+                colDir = "t";
+                shapeA.y += oY;
+            } else {
+                colDir = "b";
+                shapeA.y -= oY;
+            }
+        } else {
+            if (vX > 0) {
+                colDir = "l";
+                shapeA.x += oX;
+            } else {
+                colDir = "r";
+                shapeA.x -= oX;
+            }
         }
-        ,'interact:release': function(){
-            world.remove( attractor );
-        }
-    });
+    }
+    return colDir;
+}
 
-    // add things to the world
-    world.add([
-        Physics.behavior('interactive', { el: renderer.el })
-        ,Physics.behavior('constant-acceleration')
-        ,Physics.behavior('body-impulse-response')
-        ,Physics.behavior('body-collision-detection')
-        ,Physics.behavior('sweep-prune')
-        ,edgeBounce
-    ]);
+document.body.addEventListener("keydown", function (e) {
+    keys[e.keyCode] = true;
+});
 
-    // subscribe to ticker to advance the simulation
-    Physics.util.ticker.on(function( time ) {
-        world.step( time );
-    });
+document.body.addEventListener("keyup", function (e) {
+    keys[e.keyCode] = false;
+});
 
-    // start the ticker
-    Physics.util.ticker.start();
+
+window.addEventListener("load", function () {
+    update();
 });
