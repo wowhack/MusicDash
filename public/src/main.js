@@ -3,6 +3,9 @@
     window.requestAnimationFrame = requestAnimationFrame;
 })();
 
+
+// GLOBAL SPACE
+
 var canvas = document.getElementById("canvas"),
   ctx = canvas.getContext("2d"),
   width = 1000,
@@ -31,9 +34,19 @@ var timeSinceLastBPM = 0;
 var msBetweenBeats;
 
 var speed;
+var grassHeigth = 20;
 
 canvas.width = width;
 canvas.height = height;
+
+
+
+// FUNCTIONS!!!
+
+
+
+
+
 
 function init(){
   var terrainValues;
@@ -130,11 +143,23 @@ function draw(){
   ctx.clearRect(0, 0, width, height);
 
   //Render Boxes
-  ctx.fillStyle = "black";    
-  ctx.beginPath();    
+  
 
   for (var i = 0; i < boxes.length; i++) {
-    ctx.rect(boxes[i].x, boxes[i].y, boxes[i].width, boxes[i].height);
+    var grassGradiant = ctx.createLinearGradient(boxes[i].x, boxes[i].y, boxWidth ,grassHeigth);
+    grassGradiant.addColorStop(0,"82ff5c");
+    grassGradiant.addColorStop(1,"d48b2d");
+
+    var dirtGradiant = ctx.createLinearGradient(boxes[i].x, boxes[i].y + grassHeigth,boxWidth,boxes[i].height - grassHeigth);
+    dirtGradiant.addColorStop(0,"d48b2d");
+    dirtGradiant.addColorStop(1,"8b5a1b");
+    ctx.fill();
+    ctx.fillStyle= grassGradiant;
+    ctx.fillRect(boxes[i].x, boxes[i].y, boxes[i].width, grassHeigth);
+
+    ctx.fill();
+    ctx.fillStyle = dirtGradiant;   
+    ctx.fillRect(boxes[i].x, boxes[i].y + grassHeigth, boxes[i].width, boxes[i].height - grassHeigth);
   }
 
   //Render Player.
