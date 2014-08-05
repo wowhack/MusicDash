@@ -1,6 +1,7 @@
 (function () {
     var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
     window.requestAnimationFrame = requestAnimationFrame;
+    // window.AudioContext = window.AudioContext||window.webkitAudioContext;
 })();
 
 
@@ -8,6 +9,7 @@
 
 var canvas = document.getElementById("canvas"),
   ctx = canvas.getContext("2d"),
+  // audioCtx = new AudioContext(),
   width = 1000,
   height = 600,
   BeatsPerScreen = 10,
@@ -36,6 +38,10 @@ var msBetweenBeats;
 var speed;
 var grassHeigth = 20;
 
+var trackID ="5U727Qt3K2zj4oicwNJajj";
+
+var sound;
+
 canvas.width = width;
 canvas.height = height;
 
@@ -52,20 +58,27 @@ function init(){
   var terrainValues;
   console.log("Generating terrain");
 
-  var terrainLoaded = $.Deferred();
-  
-  generateTerrain(terrainLoaded);
+  var levelLoaded = $.Deferred();
+  var songLoaded = $.Deferred();
 
-  terrainLoaded.done( 
-    function(tempo,terrainValues){
-      initTerrain(terrainValues);
-      updatePublicVar(tempo);
-      update(tempo);
+  generateTerrain(levelLoaded,trackID);
+  loadSong(songLoaded,trackID);
+
+  $.when(levelLoaded,songLoaded).done(
+
+    function(levelResponse,songRespons){
+      console.log("Sound and terraing loaded");
+
+      initTerrain(levelResponse.terrainValue);
+      updatePublicVar(levelResponse.BPM);
+      playSound();
+      update(levelResponse.BPM);
     }
+
   );
 }
 function updatePublicVar(tempo){
-  BPM = tempo
+  BPM = tempo;
   // msBetweenBeats = 1000 / (BPM/60);
   speed = BPM/60 * boxWidth;
 }
@@ -123,7 +136,7 @@ function logic(dt,space,up,w, callback){
     //Removes Terrainboxes outside screen and spawn a new one.
     if(boxes[i].x < -boxWidth){
       boxes.splice(i, 1);
-    }    
+    }
   }
 
   if(player.grounded){
@@ -141,9 +154,6 @@ function logic(dt,space,up,w, callback){
 function draw(){
   //Clear screen
   ctx.clearRect(0, 0, width, height);
-
-  //Render Boxes
-  
 
   for (var i = 0; i < boxes.length; i++) {
     var grassGradiant = ctx.createLinearGradient(boxes[i].x, boxes[i].y, boxWidth ,grassHeigth);
@@ -165,7 +175,7 @@ function draw(){
   //Render Player.
   ctx.fill();
   ctx.fillStyle = "red";
-  ctx.fillRect(player.x, player.y, player.width, player.height);    
+  ctx.fillRect(player.x, player.y, player.width, player.height);
 }
 
 function createTerrainBox(Y,X){
