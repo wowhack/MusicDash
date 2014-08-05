@@ -1,12 +1,12 @@
 (function () {
     var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
     window.requestAnimationFrame = requestAnimationFrame;
-     window.AudioContext = window.AudioContext||window.webkitAudioContext;
+    // window.AudioContext = window.AudioContext||window.webkitAudioContext;
 })();
 
 var canvas = document.getElementById("canvas"),
   ctx = canvas.getContext("2d"),
-  audioCtx = new AudioContext(),
+  // audioCtx = new AudioContext(),
   width = 1000,
   height = 600,
   BeatsPerScreen = 10,
@@ -34,6 +34,10 @@ var msBetweenBeats;
 
 var speed;
 
+var trackID ="5U727Qt3K2zj4oicwNJajj";
+
+var sound;
+
 canvas.width = width;
 canvas.height = height;
 
@@ -42,15 +46,22 @@ function init(){
   console.log("Generating terrain");
 
   var levelLoaded = $.Deferred();
+  var songLoaded = $.Deferred();
 
-  generateTerrain(levelLoaded);
+  generateTerrain(levelLoaded,trackID);
+  loadSong(songLoaded,trackID);
 
-  levelLoaded.done(
-    function(tempo,terrainValues){
-      initTerrain(terrainValues);
-      updatePublicVar(tempo);
-      update(tempo);
+  $.when(levelLoaded,songLoaded).done(
+
+    function(levelResponse,songRespons){
+      console.log("Sound and terraing loaded");
+
+      initTerrain(levelResponse.terrainValue);
+      updatePublicVar(levelResponse.BPM);
+      playSound();
+      update(levelResponse.BPM);
     }
+
   );
 }
 function updatePublicVar(tempo){

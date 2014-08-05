@@ -1,22 +1,11 @@
-function generateTerrain(deffered){
+function generateTerrain(deferred,trackID){
   var apiKey         = "ECLJI0GPBJVEXSZDT";
   var spotifySpace   = "spotify";
   var echoNestHost   = "http://developer.echonest.com/";
   var format         = "json";
-  var trackID        ="5U727Qt3K2zj4oicwNJajj";
   var trackInfo;
   var goldenRatio = 0.381966;
   var level = {};
-  $.getJSON('https://api.spotify.com/v1/tracks/'+trackID, {
-  }, function(data){
-    console.log(data);
-    $.ajax({
-    url: data.preview_url,
-    success: function(data) {
-      //console.log(data);
-    }
-    });
-  });
 
   //Fetch track info from echonest
   $.getJSON('http://developer.echonest.com/api/v4/track/profile', {
@@ -58,7 +47,12 @@ function generateTerrain(deffered){
 
         }
 
-        deffered.resolve(BPM,terrain);
+        var response = {
+          BPM: BPM,
+          terrainValue: terrain
+        };
+        console.log("resolve terrain");
+        deferred.resolve(response);
       });
   });
 }
