@@ -1,10 +1,15 @@
 (function () {
     var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
     window.requestAnimationFrame = requestAnimationFrame;
+    // window.AudioContext = window.AudioContext||window.webkitAudioContext;
 })();
+
+
+// GLOBAL SPACE
 
 var canvas = document.getElementById("canvas"),
   ctx = canvas.getContext("2d"),
+  // audioCtx = new AudioContext(),
   width = 1000,
   height = 600,
   BeatsPerScreen = 10,
@@ -31,28 +36,50 @@ var timeSinceLastBPM = 0;
 var msBetweenBeats;
 
 var speed;
+var grassHeigth = 20;
+
+var trackID ="5U727Qt3K2zj4oicwNJajj";
+
+var sound;
 
 canvas.width = width;
 canvas.height = height;
+
+
+
+// FUNCTIONS!!!
+
+
+
+
+
 
 function init(){
   var terrainValues;
   console.log("Generating terrain");
 
-  var terrainLoaded = $.Deferred();
 
-  generateTerrain(terrainLoaded);
+  var levelLoaded = $.Deferred();
+  var songLoaded = $.Deferred();
 
-  terrainLoaded.done(
-    function(tempo,terrainValues){
-      initTerrain(terrainValues);
-      updatePublicVar(tempo);
-      update(tempo);
+  generateTerrain(levelLoaded,trackID);
+  loadSong(songLoaded,trackID);
+
+  $.when(levelLoaded,songLoaded).done(
+
+    function(levelResponse,songRespons){
+      console.log("Sound and terraing loaded");
+
+      initTerrain(levelResponse.terrainValue);
+      updatePublicVar(levelResponse.BPM);
+      playSound();
+      update(levelResponse.BPM);
     }
+
   );
 }
 function updatePublicVar(tempo){
-  BPM = tempo
+  BPM = tempo;
   // msBetweenBeats = 1000 / (BPM/60);
   speed = BPM/60 * boxWidth;
 }
@@ -129,12 +156,28 @@ function draw(){
   //Clear screen
   ctx.clearRect(0, 0, width, height);
 
+<<<<<<< HEAD
   //Render Boxes
   ctx.fillStyle = "black";
   ctx.beginPath();
 
+=======
+>>>>>>> origin/develop
   for (var i = 0; i < boxes.length; i++) {
-    ctx.rect(boxes[i].x, boxes[i].y, boxes[i].width, boxes[i].height);
+    var grassGradiant = ctx.createLinearGradient(boxes[i].x, boxes[i].y, boxWidth ,grassHeigth);
+    grassGradiant.addColorStop(0,"82ff5c");
+    grassGradiant.addColorStop(1,"d48b2d");
+
+    var dirtGradiant = ctx.createLinearGradient(boxes[i].x, boxes[i].y + grassHeigth,boxWidth,boxes[i].height - grassHeigth);
+    dirtGradiant.addColorStop(0,"d48b2d");
+    dirtGradiant.addColorStop(1,"8b5a1b");
+    ctx.fill();
+    ctx.fillStyle= grassGradiant;
+    ctx.fillRect(boxes[i].x, boxes[i].y, boxes[i].width, grassHeigth);
+
+    ctx.fill();
+    ctx.fillStyle = dirtGradiant;
+    ctx.fillRect(boxes[i].x, boxes[i].y + grassHeigth, boxes[i].width, boxes[i].height - grassHeigth);
   }
 
   //Render Player.
