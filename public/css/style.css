@@ -6,3 +6,11 @@ body {
 a {
   color: #00B7FF;
 }
+
+.pjs-meta {
+  display: none;
+}
+
+#viewport {
+  border: 1px solid #666;
+}
