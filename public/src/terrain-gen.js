@@ -38,7 +38,8 @@ function generateTerrain(deferred,trackID){
           if(totalDuration > goldenRatioStart){
             var loudness = 300 + 500 * (segments[i].loudness_max+100)/100;
             terrain.push({
-              y:loudness
+              y:loudness,
+              width: segments[i].duration / (60/BPM)
             });
             if(totalDuration > goldenRatioStart+30){
               break;

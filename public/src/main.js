@@ -50,10 +50,6 @@ canvas.height = height;
 // FUNCTIONS!!!
 
 
-
-
-
-
 function init(){
   var terrainValues;
   console.log("Generating terrain");
@@ -178,20 +174,23 @@ function draw(){
   ctx.fillRect(player.x, player.y, player.width, player.height);
 }
 
-function createTerrainBox(Y,X){
+function createTerrainBox(Y,X,width){
   boxHeight = height - Y;
   boxes.push({
     x: X,
     y: Y,
-    width: boxWidth,
-    height: boxHeight,
-    color: "#000"
+    width: width,
+    height: boxHeight
   });
 }
 
 function initTerrain(values){
   for(var i = 0; i < values.length; i++){
-    createTerrainBox(values[i].y, i * 100);
+    var x = 0;
+    if(i > 0){
+      x = boxes[boxes.length-1].x + boxes[boxes.length-1].width;
+    }
+    createTerrainBox(values[i].y, x, values[i].width * boxWidth);
   }
 }
 
