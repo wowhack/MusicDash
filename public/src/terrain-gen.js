@@ -3,13 +3,25 @@ function generateTerrain(deffered){
   var spotifySpace   = "spotify";
   var echoNestHost   = "http://developer.echonest.com/";
   var format         = "json";
+  var trackID        ="5U727Qt3K2zj4oicwNJajj";
   var trackInfo;
   var goldenRatio = 0.381966;
   var level = {};
+  $.getJSON('https://api.spotify.com/v1/tracks/'+trackID, {
+  }, function(data){
+    console.log(data);
+    $.ajax({
+    url: data.preview_url,
+    success: function(data) {
+      //console.log(data);
+    }
+    });
+  });
+
   //Fetch track info from echonest
   $.getJSON('http://developer.echonest.com/api/v4/track/profile', {
     'api_key':apiKey,
-    'id':'spotify:track:5U727Qt3K2zj4oicwNJajj',
+    'id':'spotify:track:'+trackID,
     'format':format,
     'bucket':'audio_summary'
   }, function(data){
@@ -22,8 +34,6 @@ function generateTerrain(deffered){
     //Fetch the track analysis, proxied through yahooapi (base on an example which said "temporary, but it works")
      $.getJSON("http://query.yahooapis.com/v1/public/yql",
       { q: "select * from json where url=\"" + analysisURL + "\"", format: "json"}, function(data){
-        console.log("data");
-        console.log(data);
         var trackInfo = data.query.results.json;
         var segments = trackInfo.segments;
 

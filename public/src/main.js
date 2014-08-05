@@ -1,10 +1,12 @@
 (function () {
     var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
     window.requestAnimationFrame = requestAnimationFrame;
+     window.AudioContext = window.AudioContext||window.webkitAudioContext;
 })();
 
 var canvas = document.getElementById("canvas"),
   ctx = canvas.getContext("2d"),
+  audioCtx = new AudioContext(),
   width = 1000,
   height = 600,
   BeatsPerScreen = 10,
@@ -39,11 +41,11 @@ function init(){
   var terrainValues;
   console.log("Generating terrain");
 
-  var terrainLoaded = $.Deferred();
-  
-  generateTerrain(terrainLoaded);
+  var levelLoaded = $.Deferred();
 
-  terrainLoaded.done( 
+  generateTerrain(levelLoaded);
+
+  levelLoaded.done(
     function(tempo,terrainValues){
       initTerrain(terrainValues);
       updatePublicVar(tempo);
@@ -52,7 +54,7 @@ function init(){
   );
 }
 function updatePublicVar(tempo){
-  BPM = tempo
+  BPM = tempo;
   // msBetweenBeats = 1000 / (BPM/60);
   speed = BPM/60 * boxWidth;
 }
@@ -110,7 +112,7 @@ function logic(dt,space,up,w, callback){
     //Removes Terrainboxes outside screen and spawn a new one.
     if(boxes[i].x < -boxWidth){
       boxes.splice(i, 1);
-    }    
+    }
   }
 
   if(player.grounded){
@@ -130,8 +132,8 @@ function draw(){
   ctx.clearRect(0, 0, width, height);
 
   //Render Boxes
-  ctx.fillStyle = "black";    
-  ctx.beginPath();    
+  ctx.fillStyle = "black";
+  ctx.beginPath();
 
   for (var i = 0; i < boxes.length; i++) {
     ctx.rect(boxes[i].x, boxes[i].y, boxes[i].width, boxes[i].height);
@@ -140,7 +142,7 @@ function draw(){
   //Render Player.
   ctx.fill();
   ctx.fillStyle = "red";
-  ctx.fillRect(player.x, player.y, player.width, player.height);    
+  ctx.fillRect(player.x, player.y, player.width, player.height);
 }
 
 function createTerrainBox(Y,X){
