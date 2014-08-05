@@ -40,10 +40,10 @@ function init(){
   console.log("Generating terrain");
 
   var terrainLoaded = $.Deferred();
-  
+
   generateTerrain(terrainLoaded);
 
-  terrainLoaded.done( 
+  terrainLoaded.done(
     function(tempo,terrainValues){
       initTerrain(terrainValues);
       updatePublicVar(tempo);
@@ -110,7 +110,7 @@ function logic(dt,space,up,w, callback){
     //Removes Terrainboxes outside screen and spawn a new one.
     if(boxes[i].x < -boxWidth){
       boxes.splice(i, 1);
-    }    
+    }
   }
 
   if(player.grounded){
@@ -130,8 +130,8 @@ function draw(){
   ctx.clearRect(0, 0, width, height);
 
   //Render Boxes
-  ctx.fillStyle = "black";    
-  ctx.beginPath();    
+  ctx.fillStyle = "black";
+  ctx.beginPath();
 
   for (var i = 0; i < boxes.length; i++) {
     ctx.rect(boxes[i].x, boxes[i].y, boxes[i].width, boxes[i].height);
@@ -140,7 +140,7 @@ function draw(){
   //Render Player.
   ctx.fill();
   ctx.fillStyle = "red";
-  ctx.fillRect(player.x, player.y, player.width, player.height);    
+  ctx.fillRect(player.x, player.y, player.width, player.height);
 }
 
 function createTerrainBox(Y,X){
