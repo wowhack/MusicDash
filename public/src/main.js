@@ -23,7 +23,10 @@ var canvas = document.getElementById("canvas"),
     gravity = 0.3;
 
 var boxes = [];
-
+console.log("Generating terrain");
+var terrainValues = generateTerrain();
+console.log("Terrain generated.");
+console.log(terrainValues);
 canvas.width = width;
 canvas.height = height;
 
@@ -45,11 +48,11 @@ function update() {
     ctx.clearRect(0, 0, width, height);
     ctx.fillStyle = "black";
     ctx.beginPath();
-    
+
     player.grounded = false;
     for (var i = 0; i < boxes.length; i++) {
         ctx.rect(boxes[i].x, boxes[i].y, boxes[i].width, boxes[i].height);
-        
+
         var dir = colCheck(player, boxes[i]);
 
         if (dir === "l" || dir === "r") {
@@ -70,11 +73,11 @@ function update() {
         createTerrainBox(Math.floor((Math.random() * height) + 1), width);
       }
     }
-    
+
     if(player.grounded){
          player.velY = 0;
     }
-  
+
     player.y += player.velY;
 
     //Code to render scene.
