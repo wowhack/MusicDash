@@ -4,85 +4,112 @@
 })();
 
 var canvas = document.getElementById("canvas"),
-    ctx = canvas.getContext("2d"),
-    width = 1000,
-    height = 600,
-    boxWidth = 100,
-    player = {
-        x: width / 2,
-        y: 0,
-        width: 20,
-        height: 40,
-        jumpSpeed: 12,
-        velY: 0,
-        jumping: false,
-        grounded: false
-    },
-    keys = [],
-    friction = 0.8,
-    gravity = 0.3;
+  ctx = canvas.getContext("2d"),
+  width = 1000,
+  height = 600,
+  boxWidth = 100,
+  BPM = 150,
+  player = {
+    x: width / 2,
+    y: 0,
+    width: 20,
+    height: 40,
+    jumpSpeed: 12,
+    velY: 0,
+    jumping: false,
+    grounded: false
+  },
+  keys = [],
+  friction = 0.8,
+  gravity = 0.3;
 
 var boxes = [];
+var time;
+var timeSinceLastBPM = 0;
+var msBetweenBeats = 1000/ (BPM/60);
 
 canvas.width = width;
 canvas.height = height;
 
 initTerrain();
 
+
 function update() {
-    // check keys
-    if (keys[38] || keys[32] || keys[87]) {
-        // up arrow or space
-        if (!player.jumping && player.grounded) {
-            player.jumping = true;
-            player.grounded = false;
-            player.velY = -player.jumpSpeed;
-        }
+  //Recursiv call next frame.
+  requestAnimationFrame(update);
+  //Time since last update
+  var dt = calcDt();
+  // keys[32] = space , keys[38] = up arrow ,keys[87] = w);
+  logic(dt,keys[32],keys[38],keys[87]);
+  draw(dt);
+}
+
+
+function calcDt(){
+  var now = new Date().getTime(),
+    dt = now - (time || now);
+  time = now;
+  return dt;
+}
+
+function logic(dt,space,up,w, callback){
+  // check keys
+  if (space || up || w) {
+    // up arrow or space
+    if (!player.jumping && player.grounded) {
+      player.jumping = true;
+      player.grounded = false;
+      player.velY = -player.jumpSpeed;
+    }
+  }
+
+  player.velY += gravity;
+  player.grounded = false;
+
+  for (var i = 0; i < boxes.length; i++) {
+    var dir = colCheck(player, boxes[i]);
+
+    if (dir === "l" || dir === "r") {
+        player.jumping = false;
+    } else if (dir === "b") {
+        player.grounded = true;
+        player.jumping = false;
+    } else if (dir === "t") {
+        player.velY *= -1;
     }
 
-    player.velY += gravity;
+    //moves a terrainBox in X-axis
+    boxes[i].x = boxes[i].x - 2;
 
-    ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = "black";
-    ctx.beginPath();
-    
-    player.grounded = false;
-    for (var i = 0; i < boxes.length; i++) {
-        ctx.rect(boxes[i].x, boxes[i].y, boxes[i].width, boxes[i].height);
-        
-        var dir = colCheck(player, boxes[i]);
+    //Removes Terrainboxes outside screen and spawn a new one.
+    if(boxes[i].x < -boxWidth){
+      boxes.splice(i, 1);
+      createTerrainBox(Math.floor((Math.random() * height) + 1), width);
+    }    
+  }
 
-        if (dir === "l" || dir === "r") {
-            player.jumping = false;
-        } else if (dir === "b") {
-            player.grounded = true;
-            player.jumping = false;
-        } else if (dir === "t") {
-            player.velY *= -1;
-        }
-
-      //moves a terrainBox in X-axis
-      boxes[i].x = boxes[i].x - 2;
-
-      //Removes Terrainboxes outside screen and spawn a new one.
-      if(boxes[i].x < -boxWidth){
-        boxes.splice(i, 1);
-        createTerrainBox(Math.floor((Math.random() * height) + 1), width);
-      }
-    }
-    
-    if(player.grounded){
+  if(player.grounded){
          player.velY = 0;
     }
-  
-    player.y += player.velY;
+  player.y += player.velY;
+}
 
-    //Code to render scene.
-    ctx.fill();
-    ctx.fillStyle = "red";
-    ctx.fillRect(player.x, player.y, player.width, player.height);
+function draw(){
+  //Clear screen
+  ctx.clearRect(0, 0, width, height);
 
-    requestAnimationFrame(update);
+  //Render Boxes
+  ctx.fillStyle = "black";    
+  ctx.beginPath();    
+
+  for (var i = 0; i < boxes.length; i++) {
+    ctx.rect(boxes[i].x, boxes[i].y, boxes[i].width, boxes[i].height);
+  }
+
+  //Render Player.
+  ctx.fill();
+  ctx.fillStyle = "red";
+  ctx.fillRect(player.x, player.y, player.width, player.height);    
 }
 
 function createTerrainBox(Y,X){
@@ -91,7 +118,8 @@ function createTerrainBox(Y,X){
     x: X,
     y: Y,
     width: boxWidth,
-    height: boxHeight
+    height: boxHeight,
+    color: "#000"
   });
 }
 
@@ -99,6 +127,10 @@ function initTerrain(){
   for(var i = 0; i < 10; i++){
     createTerrainBox(Math.floor((Math.random() * height) + 1), i * 100);
   }
+}
+
+function BPMLoop(){
+
 }
 
 function colCheck(shapeA, shapeB) {
@@ -143,7 +175,6 @@ document.body.addEventListener("keydown", function (e) {
 document.body.addEventListener("keyup", function (e) {
     keys[e.keyCode] = false;
 });
-
 
 window.addEventListener("load", function () {
     update();
