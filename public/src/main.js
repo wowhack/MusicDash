@@ -8,13 +8,13 @@ var canvas = document.getElementById("canvas"),
   width = 1000,
   height = 600,
   boxWidth = 100,
-  BPM = 150,
+  BPM,
   player = {
-    x: width / 2,
+    x: 100,
     y: 0,
     width: 20,
     height: 40,
-    jumpSpeed: 12,
+    jumpSpeed: 8,
     velY: 0,
     jumping: false,
     grounded: false
@@ -27,7 +27,7 @@ var boxes = [];
 
 var time;
 var timeSinceLastBPM = 0;
-var msBetweenBeats = 1000/ (BPM/60);
+var msBetweenBeats;
 
 canvas.width = width;
 canvas.height = height;
@@ -41,17 +41,21 @@ function init(){
   generateTerrain(terrainLoaded);
 
   terrainLoaded.done( 
-    function(terrainValues){
-      initTerrain();
-      console.log("Terrain generated.");
-      console.log(terrainValues);
-      console.log("Starting Game.");
-      update();
+    function(tempo,terrainValues){
+      initTerrain(terrainValues);
+      updatePublicVar(tempo);
+      update(tempo);
     }
   );
 }
+function updatePublicVar(tempo){
+  BMP = tempo
+  msBetweenBeats = 1000 / (BMP/60);
+}
 
 function update() {
+  // console.log(BPM);
+  // console.log(msBetweenBeats);
   //Recursiv call next frame.
   requestAnimationFrame(update);
   //Time since last update
@@ -102,7 +106,6 @@ function logic(dt,space,up,w, callback){
     //Removes Terrainboxes outside screen and spawn a new one.
     if(boxes[i].x < -boxWidth){
       boxes.splice(i, 1);
-      createTerrainBox(Math.floor((Math.random() * height) + 1), width);
     }    
   }
 
@@ -110,6 +113,12 @@ function logic(dt,space,up,w, callback){
          player.velY = 0;
     }
   player.y += player.velY;
+
+  timeSinceLastBPM += dt;
+  if(timeSinceLastBPM > msBetweenBeats){
+    BPMLoop();
+    timeSinceLastBPM = 0;
+  }
 }
 
 function draw(){
@@ -141,9 +150,9 @@ function createTerrainBox(Y,X){
   });
 }
 
-function initTerrain(){
-  for(var i = 0; i < 10; i++){
-    createTerrainBox(Math.floor((Math.random() * height) + 1), i * 100);
+function initTerrain(values){
+  for(var i = 0; i < values.length; i++){
+    createTerrainBox(values[i].y, i * 100);
   }
 }
 

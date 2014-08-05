@@ -1,8 +1,8 @@
 function generateTerrain(deffered){
-  console.log("inside terrain generation.");
-  var apiKey = "ECLJI0GPBJVEXSZDT";
-  var spotifySpace = "spotify";
-  var echoNestHost = "http://developer.echonest.com/";
+  var apiKey         = "ECLJI0GPBJVEXSZDT";
+  var spotifySpace   = "spotify";
+  var echoNestHost   = "http://developer.echonest.com/";
+  var format         = "json";
   var trackInfo;
   var goldenRatio = 0.381966;
   var level = {};
@@ -10,15 +10,20 @@ function generateTerrain(deffered){
   $.getJSON('http://developer.echonest.com/api/v4/track/profile', {
     'api_key':apiKey,
     'id':'spotify:track:5U727Qt3K2zj4oicwNJajj',
+    'format':format,
     'bucket':'audio_summary'
   }, function(data){
     trackInfo = data.response.track;
+    var BPM = trackInfo.audio_summary.tempo;
 
     var analysisURL = trackInfo.audio_summary.analysis_url;
+    console.log(analysisURL);
     //console.log(analysisURL);
     //Fetch the track analysis, proxied through yahooapi (base on an example which said "temporary, but it works")
      $.getJSON("http://query.yahooapis.com/v1/public/yql",
       { q: "select * from json where url=\"" + analysisURL + "\"", format: "json"}, function(data){
+        console.log("data");
+        console.log(data);
         var trackInfo = data.query.results.json;
         var segments = trackInfo.segments;
 
@@ -32,9 +37,8 @@ function generateTerrain(deffered){
         for(var i = 0; i < segments.length; i++){
           totalDuration += parseFloat(segments[i].duration);
           if(totalDuration > goldenRatioStart){
-            var loudness = 200+200*(segments[i].loudness_max+100)/100;
+            var loudness = 300 + 500 * (segments[i].loudness_max+100)/100;
             terrain.push({
-              x:i,
               y:loudness
             });
             if(totalDuration > goldenRatioStart+30){
@@ -43,8 +47,8 @@ function generateTerrain(deffered){
           }
 
         }
-        console.log("Done with terrain generation");
-        deffered.resolve(terrain);
+
+        deffered.resolve(BPM,terrain);
       });
   });
 }
