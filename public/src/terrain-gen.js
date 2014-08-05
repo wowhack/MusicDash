@@ -1,4 +1,4 @@
-function generateTerrain(){
+function generateTerrain(deffered){
   console.log("inside terrain generation.");
   var apiKey = "ECLJI0GPBJVEXSZDT";
   var spotifySpace = "spotify";
@@ -44,7 +44,7 @@ function generateTerrain(){
 
         }
         console.log("Done with terrain generation");
-        return terrain;
+        deffered.resolve(terrain);
       });
   });
 }

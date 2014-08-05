@@ -29,16 +29,27 @@ var time;
 var timeSinceLastBPM = 0;
 var msBetweenBeats = 1000/ (BPM/60);
 
-console.log("Generating terrain");
-var terrainValues = generateTerrain();
-console.log("Terrain generated.");
-console.log(terrainValues);
-
 canvas.width = width;
 canvas.height = height;
 
-initTerrain();
+function init(){
+  var terrainValues;
+  console.log("Generating terrain");
 
+  var terrainLoaded = $.Deferred();
+  
+  generateTerrain(terrainLoaded);
+
+  terrainLoaded.done( 
+    function(terrainValues){
+      initTerrain();
+      console.log("Terrain generated.");
+      console.log(terrainValues);
+      console.log("Starting Game.");
+      update();
+    }
+  );
+}
 
 function update() {
   //Recursiv call next frame.
@@ -184,5 +195,5 @@ document.body.addEventListener("keyup", function (e) {
 });
 
 window.addEventListener("load", function () {
-  update();
+  init();
 });
