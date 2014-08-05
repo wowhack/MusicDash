@@ -109,6 +109,11 @@ function logic(dt,space,up,w, callback){
       player.velY = -player.jumpSpeed;
     }
   }
+  else{
+    if(player.velY < 0){
+      player.velY += gravity;
+    }
+  }
 
 
   player.velY += gravity;
@@ -186,7 +191,7 @@ function createTerrainBox(Y,X,width){
 
 function initTerrain(values){
   for(var i = 0; i < values.length; i++){
-    var x = 0;
+    var x = 100 + player.width / 2; 
     if(i > 0){
       x = boxes[boxes.length-1].x + boxes[boxes.length-1].width;
     }
