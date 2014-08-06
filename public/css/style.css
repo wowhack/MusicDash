@@ -13,9 +13,9 @@ a {
 
 #canvas {
   border: 1px solid #666;
-  background-image: -o-linear-gradient(     left , rgb(208,244,247) 9.5%, rgb(255,255,255) 10%, rgb(208,244,247) 10.5%);
-  background-image: -moz-linear-gradient(   left , rgb(208,244,247) 9.5%, rgb(255,255,255) 10%, rgb(208,244,247) 10.5%);
-  background-image: -webkit-linear-gradient(left , rgb(208,244,247) 9.5%, rgb(255,255,255) 10%, rgb(208,244,247) 10.5%);
-  background-image: linear-gradient(        left , rgb(208,244,247) 9.5%, rgb(255,255,255) 10%, rgb(208,244,247) 10.5%);
+  background-image: -o-linear-gradient(     left , rgb(208,244,247) 49.5%, rgb(255,255,255) 50.5%, rgb(208,244,247) 51%);
+  background-image: -moz-linear-gradient(   left , rgb(208,244,247) 49.5%, rgb(255,255,255) 50.5%, rgb(208,244,247) 51%);
+  background-image: -webkit-linear-gradient(left , rgb(208,244,247) 49.5%, rgb(255,255,255) 50.5%, rgb(208,244,247) 51%);
+  background-image: linear-gradient(        left , rgb(208,244,247) 49.5%, rgb(255,255,255) 50.5%, rgb(208,244,247) 51%);
   /*background-color: #d0f4f7;*/
 }

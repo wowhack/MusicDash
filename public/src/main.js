@@ -16,7 +16,7 @@ var canvas = document.getElementById("canvas"),
   boxWidth = width/BeatsPerScreen,
   BPM,
   player = {
-    x: 100 - 10,
+    x: 500 - 18,
     y: 0,
     width: 36,
     height: 48,
@@ -126,7 +126,7 @@ function init(){
         $('body').css({"-moz-background-size":"cover"});
         $('body').css({"-o-background-size":"cover"});
         $('body').css({"background-size":"cover"});        
-        }, (60 * 1000 * 9)/BPM );
+        }, (60 * 1000 * 5)/BPM );
       }
       else{
         playSound(trackID[numberOfSongs-1]);
@@ -148,6 +148,7 @@ function updatePublicVar(tempo,url){
   BPM = tempo;
   // msBetweenBeats = 1000 / (BPM/60);
   speed = BPM/60 * boxWidth;
+  player.speed = speed;
   albumCoverURL = url;
 }
 
@@ -209,9 +210,9 @@ function logic(dt,space,up,w,right,left,d,a,callback){
   }
   if (left || a) {
       // left arrow
-      if (player.velX > -player.speed) {
-          player.velX--;
-      }
+      player.x = player.x - (dt/1000) * speed;
+      currentAnimation=playerSprite.spriteData["p1_stand"];
+      currentFrame=0;
   }
 
     player.velX *= friction;  
@@ -238,7 +239,7 @@ function logic(dt,space,up,w,right,left,d,a,callback){
     else{
       newHeight = lastBox.y - 2;
     }
-    createTerrainBox(newHeight,width,10,"#a5a5a5");
+    createTerrainBox(newHeight,width,boxWidth,"#a5a5a5");
   }
 
   for (var i = 0; i < boxes.length; i++) {
@@ -317,7 +318,7 @@ function createTerrainBox(Y,X,width,color){
 
 function initTerrain(values){
   for(var i = 0; i < values.length; i++){
-    var x = 100;
+    var x = 500;
     if(boxes.length > 0){
       x = boxes[boxes.length-1].x + boxes[boxes.length-1].width;
     }
