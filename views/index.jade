@@ -1,22 +1,31 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
-  //- canvas#viewport(width="300",height="300")
-  canvas#canvas
+  .col-xs-3
+    h1= title
+    p Welcome to #{title}
+    //- canvas#viewport(width="300",height="300")
+  .col-xs-5
+    form.form-inline(role='form')
+    .form-group
+      .input-group
+        .input-group-addon Spotify Songs
+        input.form-control#songInput(type='text', placeholder='Enter Spotify URI')
+  .col-xs-1
+    button.btn.btn-default#addSong(type='submit') add Song
+  .col-xs-2
+    button.btn.btn-default#startGame(type='submit') Start Game
+  .col-xs-12    
+    #trackID
+  .col-xs-12
+    canvas#canvas
 
 block lib
-  //- TODO: Load locally
-  //- script(src="lib/physicsjs-full-0.6.0.min.js")
   script(src="lib/jQuery.min.js")
+  script(src="lib/bootstrap.min.js")
 
-  //- For helloWorld example
-  //- script(src="http://wellcaffeinated.net/PhysicsJS/assets/scripts/vendor/physicsjs-0.5.0/physicsjs-full-0.5.0.min.js")
 
 block src
-  //- script(src="src/helloWorld.js")
-
   script(src="src/AssetManager.js")
   script(src="src/graphics.js")
   script(src="src/load-song.js")

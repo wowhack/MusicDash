@@ -42,7 +42,7 @@ var speed;
 var grassHeigth = 20;
 
 
-var trackID = ["5U727Qt3K2zj4oicwNJajj","0tDbl1SVkdSI4Efi0sA3A8"];
+var trackID = [];
 var playerSprite;
 var currentAnimation;// = "p1_walk";
 var frameDuration = 50;
@@ -53,10 +53,40 @@ canvas.width = width;
 canvas.height = height;
 
 
+$('#canvas').hide();
 
 // FUNCTIONS!!!
 
 var graphicsLoaded = $.Deferred();
+
+// function startGame(){
+//   var playListLoaded = $.Deferred(); 
+
+//   playListLoaded.done(function(tracks) {
+//     trackID = tracks;
+//     init();
+//   });
+// }
+
+$('#addSong').click(function(){
+  var list = $('#songInput').val().split(":");
+  var id = list[list.length - 1];
+  trackID.push(id);
+  var html = '<span> spotify:track:' + id + '</span><br>';
+  $('#trackID').append(html);
+});
+
+$('#startGame').click(function(){
+  if(trackID.length < 0){
+    alert('no songs added');
+  }
+  else{
+    $('#trackID').hide();
+    $('#canvas').show();
+    init();    
+  }
+});
+
 
 function init(){
   startedDownload = true;
@@ -243,9 +273,9 @@ function draw(){
   }
 
   //Render Player.
-  ctx.fill();
-  ctx.fillStyle = "red";
-  ctx.fillRect(player.x, player.y, player.width, player.height);
+  // ctx.fill();
+  // ctx.fillStyle = "red";
+  // ctx.fillRect(player.x, player.y, player.width, player.height);
   ctx.drawImage(playerSprite.image, currentAnimation[currentFrame].x,currentAnimation[currentFrame].y,currentAnimation[currentFrame].w,currentAnimation[currentFrame].h, player.x, player.y, player.width, player.height);
 }
 
@@ -317,6 +347,6 @@ document.body.addEventListener("keyup", function (e) {
   keys[e.keyCode] = false;
 });
 
-window.addEventListener("load", function () {
-  init();
-});
+// window.addEventListener("load", function () {
+//   init();
+// });
