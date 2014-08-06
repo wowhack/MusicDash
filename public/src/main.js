@@ -18,8 +18,8 @@ var canvas = document.getElementById("canvas"),
   player = {
     x: 100 - 10,
     y: 0,
-    width: 72,
-    height: 97,
+    width: 36,
+    height: 48,
     jumpSpeed: 8,
     velY: 0,
     jumping: false,
@@ -226,19 +226,19 @@ function draw(){
     }
     else{
       var grassGradiant = ctx.createLinearGradient(boxes[i].x, boxes[i].y, boxes[i].width,grassHeigth);
-      grassGradiant.addColorStop(0,"82ff5c");
-      grassGradiant.addColorStop(1,"d48b2d");
+      grassGradiant.addColorStop(0,"#82ff5c");
+      grassGradiant.addColorStop(1,"#d48b2d");
 
       var dirtGradiant = ctx.createLinearGradient(boxes[i].x, boxes[i].y + grassHeigth,boxes[i].width,boxes[i].height - grassHeigth);
-      dirtGradiant.addColorStop(0,"d48b2d");
-      dirtGradiant.addColorStop(1,"8b5a1b");
+      dirtGradiant.addColorStop(0,"#d48b2d");
+      dirtGradiant.addColorStop(1,"#8b5a1b");
       ctx.fill();
       ctx.fillStyle= grassGradiant;
       ctx.fillRect(boxes[i].x, boxes[i].y, boxes[i].width, grassHeigth);
 
       ctx.fill();
-      ctx.fillStyle = dirtGradiant;   
-      ctx.fillRect(boxes[i].x, boxes[i].y + grassHeigth, boxes[i].width, boxes[i].height - grassHeigth);  
+      ctx.fillStyle = dirtGradiant;
+      ctx.fillRect(boxes[i].x, boxes[i].y + grassHeigth, boxes[i].width, boxes[i].height - grassHeigth);
     }
   }
 
@@ -262,7 +262,7 @@ function createTerrainBox(Y,X,width,color){
 
 function initTerrain(values){
   for(var i = 0; i < values.length; i++){
-    var x = 100; 
+    var x = 100;
     if(boxes.length > 0){
       x = boxes[boxes.length-1].x + boxes[boxes.length-1].width;
     }
