@@ -18,8 +18,8 @@ var canvas = document.getElementById("canvas"),
   player = {
     x: 100,
     y: 0,
-    width: 20,
-    height: 40,
+    width: 72,
+    height: 97,
     jumpSpeed: 8,
     velY: 0,
     jumping: false,
@@ -39,7 +39,11 @@ var speed;
 var grassHeigth = 20;
 
 var trackID ="5U727Qt3K2zj4oicwNJajj";
-
+var playerSprite;
+var currentAnimation;// = "p1_walk";
+var frameDuration = 50;
+var frameTime = 0;
+var currentFrame = 0;
 var sound;
 
 canvas.width = width;
@@ -60,16 +64,20 @@ function init(){
 
 
   var levelLoaded = $.Deferred();
+  var graphicsLoaded = $.Deferred();
   var songLoaded = $.Deferred();
 
+
   generateTerrain(levelLoaded,trackID);
+  loadGraphics(graphicsLoaded);
   loadSong(songLoaded,trackID);
 
-  $.when(levelLoaded,songLoaded).done(
-
-    function(levelResponse,songRespons){
-      console.log("Sound and terraing loaded");
-
+  $.when(levelLoaded, graphicsLoaded, songLoaded).done(//levelLoaded
+    function(levelResponse, graphicsResponse, songRespons){//function(levelResponse,songRespons){
+      console.log("Sound and terrain loaded");
+      playerSprite = graphicsResponse.playerSprite;
+      currentAnimation = playerSprite.spriteData["p1_jump"];
+      //console.log(currentAnimation);
       initTerrain(levelResponse.terrainValue);
       updatePublicVar(levelResponse.BPM);
       playSound();
@@ -85,12 +93,19 @@ function updatePublicVar(tempo){
 }
 
 function update() {
+
+
   // console.log(BPM);
   // console.log(msBetweenBeats);
   //Recursiv call next frame.
   requestAnimationFrame(update);
   //Time since last update
   var dt = calcDt();
+  frameTime += dt;
+  if(frameTime >= frameDuration){
+    frameTime = 0;
+    currentFrame = (currentFrame+1)%currentAnimation.length;
+  }
   // keys[32] = space , keys[38] = up arrow ,keys[87] = w);
   logic(dt,keys[32],keys[38],keys[87]);
   draw(dt);
@@ -108,6 +123,8 @@ function logic(dt,space,up,w, callback){
   // check keys
   if (space || up || w) {
     // up arrow or space
+    currentAnimation=playerSprite.spriteData["p1_jump"];
+    currentFrame=0;
     if (!player.jumping && player.grounded) {
       player.jumping = true;
       player.grounded = false;
@@ -127,6 +144,7 @@ function logic(dt,space,up,w, callback){
     } else if (dir === "b") {
         player.grounded = true;
         player.jumping = false;
+        currentAnimation=playerSprite.spriteData["p1_run"];
     } else if (dir === "t") {
         player.velY *= -1;
     }
@@ -155,22 +173,14 @@ function logic(dt,space,up,w, callback){
 function draw(){
   //Clear screen
   ctx.clearRect(0, 0, width, height);
-
-<<<<<<< HEAD
-  //Render Boxes
-  ctx.fillStyle = "black";
-  ctx.beginPath();
-
-=======
->>>>>>> origin/develop
   for (var i = 0; i < boxes.length; i++) {
     var grassGradiant = ctx.createLinearGradient(boxes[i].x, boxes[i].y, boxWidth ,grassHeigth);
-    grassGradiant.addColorStop(0,"82ff5c");
-    grassGradiant.addColorStop(1,"d48b2d");
+    grassGradiant.addColorStop(0,"#82ff5c");
+    grassGradiant.addColorStop(1,"#d48b2d");
 
     var dirtGradiant = ctx.createLinearGradient(boxes[i].x, boxes[i].y + grassHeigth,boxWidth,boxes[i].height - grassHeigth);
-    dirtGradiant.addColorStop(0,"d48b2d");
-    dirtGradiant.addColorStop(1,"8b5a1b");
+    dirtGradiant.addColorStop(0,"#d48b2d");
+    dirtGradiant.addColorStop(1,"#8b5a1b");
     ctx.fill();
     ctx.fillStyle= grassGradiant;
     ctx.fillRect(boxes[i].x, boxes[i].y, boxes[i].width, grassHeigth);
@@ -184,6 +194,7 @@ function draw(){
   ctx.fill();
   ctx.fillStyle = "red";
   ctx.fillRect(player.x, player.y, player.width, player.height);
+  ctx.drawImage(playerSprite.image, currentAnimation[currentFrame].x,currentAnimation[currentFrame].y,currentAnimation[currentFrame].w,currentAnimation[currentFrame].h, player.x, player.y, player.width, player.height);
 }
 
 function createTerrainBox(Y,X){
