@@ -50,6 +50,7 @@ var currentAnimation;// = "p1_walk";
 var frameDuration = 50;
 var frameTime = 0;
 var currentFrame = 0;
+var albumCoverURL;
 
 canvas.width = width;
 canvas.height = height;
@@ -110,26 +111,42 @@ function init(){
       //console.log(currentAnimation);
 
       initTerrain(levelResponse.terrainValue);
-      updatePublicVar(levelResponse.BPM);
-
+      updatePublicVar(levelResponse.BPM,songRespons.albumCover.url);
+      // console.log(songRespons.albumCover);
       if(numberOfSongs > 1){
         console.log((60 * 1000)/BPM );
         setTimeout(function(){
         playSound(trackID[numberOfSongs-1]);
+        // console.log("albumCoverURL");
+        // console.log(albumCoverURL);
+        $('body').css({"background":"url("+albumCoverURL+") no-repeat center center fixed"});
+        $('body').css({"-webkit-background-size":"cover"});
+        $('body').css({"-moz-background-size":"cover"});
+        $('body').css({"-o-background-size":"cover"});
+        $('body').css({"background-size":"cover"});        
         }, (60 * 1000 * 9)/BPM );
       }
       else{
         playSound(trackID[numberOfSongs-1]);
+        // console.log("albumCoverURL");
+        // console.log(albumCoverURL);
+        $('body').css({"background":"url("+albumCoverURL+") no-repeat center center fixed"});
+        $('body').css({"-webkit-background-size":"cover"});
+        $('body').css({"-moz-background-size":"cover"});
+        $('body').css({"-o-background-size":"cover"});
+        $('body').css({"background-size":"cover"});
+        // $('body').css('background', 'background: url(' + albumCoverURL + ') no-repeat center center fixed' );
       }
       update(levelResponse.BPM);
     }
 
   );
 }
-function updatePublicVar(tempo){
+function updatePublicVar(tempo,url){
   BPM = tempo;
   // msBetweenBeats = 1000 / (BPM/60);
   speed = BPM/60 * boxWidth;
+  albumCoverURL = url;
 }
 
 function update() {
