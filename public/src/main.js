@@ -72,6 +72,18 @@ $('#addSong').click(function(){
   $('#songInput').val('');
 });
 
+$('#presentation').click(function(){
+  id1 = "4bz7uB4edifWKJXSDxwHcs";
+  id2 = "1QzFhzIOW7CyRJLpmq5CM0";
+  trackID.push(id1);
+  trackID.push(id2);
+  var html = '<span> spotify:track:' + id1 + '</span><br>';
+  $('#trackID').append(html);
+  html = '<span> spotify:track:' + id2 + '</span><br>';
+  $('#trackID').append(html);
+  $('#songInput').val('');
+});
+
 $('#startGame').click(function(){
   if(trackID.length < 0){
     alert('no songs added');
