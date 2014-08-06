@@ -80,6 +80,10 @@ function updatePublicVar(tempo){
 }
 
 function update() {
+  //are you dead?
+  if (player.x+10 < 80 || (player.y > height)){
+    location.reload();
+  }
   // console.log(BPM);
   // console.log(msBetweenBeats);
   //Recursiv call next frame.
