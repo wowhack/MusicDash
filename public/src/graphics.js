@@ -1,7 +1,8 @@
 var sources = {
-  p1_sprite:"/images/spritesheets/p1_spritesheet.png"
+  p1_sprite:"/images/spritesheets/p1_spritesheet.png",
+  grass:"/images/grassHalfMid.png"
 };
-
+var assMan;
 function sprite (options) {
 
     var that = {};
@@ -16,7 +17,7 @@ function loadImages(sources, callback, deferred) {
 
 function loadGraphics(deferred){
   var graphicsDataLoaded = $.Deferred();
-  var assMan = new AssetManager();
+  assMan = new AssetManager();
   for(var source in sources){
     if (sources.hasOwnProperty(source)) {
         assMan.queueDownload(sources[source]);
