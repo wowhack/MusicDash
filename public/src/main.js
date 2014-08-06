@@ -39,10 +39,11 @@ var msBetweenBeats;
 var startedDownload = false;
 
 var speed;
-var grassHeigth = 20;
+var grassHeigth = 39;
 
 
 var trackID = ["5U727Qt3K2zj4oicwNJajj","0tDbl1SVkdSI4Efi0sA3A8"];
+var grassImage;
 var playerSprite;
 var currentAnimation;// = "p1_walk";
 var frameDuration = 50;
@@ -81,6 +82,7 @@ function init(){
 
       startedDownload = false;
 
+      grassImage = assMan.getAsset("/images/grassHalfMid.png");
       playerSprite = graphicsResponse.playerSprite;
       currentAnimation = playerSprite.spriteData["p1_jump"];
       //console.log(currentAnimation);
@@ -225,27 +227,22 @@ function draw(){
       ctx.fillRect(boxes[i].x, boxes[i].y, boxes[i].width, boxes[i].height);
     }
     else{
-      var grassGradiant = ctx.createLinearGradient(boxes[i].x, boxes[i].y, boxes[i].width,grassHeigth);
-      grassGradiant.addColorStop(0,"#82ff5c");
-      grassGradiant.addColorStop(1,"#d48b2d");
 
-      var dirtGradiant = ctx.createLinearGradient(boxes[i].x, boxes[i].y + grassHeigth,boxes[i].width,boxes[i].height - grassHeigth);
-      dirtGradiant.addColorStop(0,"#d48b2d");
-      dirtGradiant.addColorStop(1,"#8b5a1b");
+      var boxWidth = boxes[i].width;
+      var grassCount = 0;
+      while(boxWidth > 70){
+        boxWidth -= 70;
+        ctx.drawImage(grassImage, 0, 0, 70, grassHeigth, boxes[i].x+70*grassCount, boxes[i].y, 70, 40);
+        grassCount++;
+      }
+      ctx.drawImage(grassImage, 0, 0, boxWidth, grassHeigth, boxes[i].x+70*grassCount, boxes[i].y, boxWidth, 40);
       ctx.fill();
-      ctx.fillStyle= grassGradiant;
-      ctx.fillRect(boxes[i].x, boxes[i].y, boxes[i].width, grassHeigth);
-
-      ctx.fill();
-      ctx.fillStyle = dirtGradiant;
-      ctx.fillRect(boxes[i].x, boxes[i].y + grassHeigth, boxes[i].width, boxes[i].height - grassHeigth);
+      ctx.fillStyle = "#c99869";
+      ctx.fillRect(boxes[i].x, boxes[i].y + grassHeigth, boxes[i].width, boxes[i].height);
     }
   }
 
   //Render Player.
-  ctx.fill();
-  ctx.fillStyle = "red";
-  ctx.fillRect(player.x, player.y, player.width, player.height);
   ctx.drawImage(playerSprite.image, currentAnimation[currentFrame].x,currentAnimation[currentFrame].y,currentAnimation[currentFrame].w,currentAnimation[currentFrame].h, player.x, player.y, player.width, player.height);
 }
 
