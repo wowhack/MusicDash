@@ -21,7 +21,9 @@ var canvas = document.getElementById("canvas"),
     width: 36,
     height: 48,
     jumpSpeed: 8,
+    speed: 4,
     velY: 0,
+    velX: 0,
     jumping: false,
     grounded: false
   },
@@ -59,21 +61,13 @@ $('#canvas').hide();
 
 var graphicsLoaded = $.Deferred();
 
-// function startGame(){
-//   var playListLoaded = $.Deferred(); 
-
-//   playListLoaded.done(function(tracks) {
-//     trackID = tracks;
-//     init();
-//   });
-// }
-
 $('#addSong').click(function(){
   var list = $('#songInput').val().split(":");
   var id = list[list.length - 1];
   trackID.push(id);
   var html = '<span> spotify:track:' + id + '</span><br>';
   $('#trackID').append(html);
+  $('#songInput').val('');
 });
 
 $('#startGame').click(function(){
@@ -158,7 +152,7 @@ function update() {
     currentFrame = (currentFrame+1)%currentAnimation.length;
   }
   // keys[32] = space , keys[38] = up arrow ,keys[87] = w);
-  logic(dt,keys[32],keys[38],keys[87]);
+  logic(dt,keys[32],keys[38],keys[87],keys[39],keys[37],keys[68],keys[65]);
   draw(dt);
 }
 
@@ -170,7 +164,7 @@ function calcDt(){
   return dt;
 }
 
-function logic(dt,space,up,w, callback){
+function logic(dt,space,up,w,right,left,d,a,callback){
   // check keys
   if (space || up || w) {
     // up arrow or space
@@ -181,16 +175,33 @@ function logic(dt,space,up,w, callback){
       player.grounded = false;
       player.velY = -player.jumpSpeed;
     }
-  }
+  }  
   else{
     if(player.velY < 0){
       player.velY += gravity;
     }
   }
+  if (right || d) {
+    // console.log('hoger');
+      // right arrow
+      if (player.velX < player.speed) {
+          player.velX++;
+      }
+  }
+  if (left || a) {
+      // left arrow
+      if (player.velX > -player.speed) {
+          player.velX--;
+      }
+  }
+
+    player.velX *= friction;  
 
 
   player.velY += gravity;
   player.grounded = false;
+  player.x += player.velX;
+  player.y += player.velY
 
   var lastBox = boxes[boxes.length - 1];
 
