@@ -14,6 +14,7 @@ function generateTerrain(deferred,trackID){
     'format':format,
     'bucket':'audio_summary'
   }, function(data){
+    console.log(data);
     trackInfo = data.response.track;
     var BPM = trackInfo.audio_summary.tempo;
 

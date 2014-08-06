@@ -16,7 +16,7 @@ var canvas = document.getElementById("canvas"),
   boxWidth = width/BeatsPerScreen,
   BPM,
   player = {
-    x: 100,
+    x: 100 - 10,
     y: 0,
     width: 20,
     height: 40,
@@ -31,14 +31,17 @@ var canvas = document.getElementById("canvas"),
 
 var boxes = [];
 
+
+var numberOfSongs = 0;
 var time;
 var timeSinceLastBPM = 0;
 var msBetweenBeats;
+var startedDownload = false;
 
 var speed;
 var grassHeigth = 20;
 
-var trackID ="5U727Qt3K2zj4oicwNJajj";
+var trackID = ["5U727Qt3K2zj4oicwNJajj","0tDbl1SVkdSI4Efi0sA3A8"];
 
 var sound;
 
@@ -51,23 +54,34 @@ canvas.height = height;
 
 
 function init(){
+  startedDownload = true;
   var terrainValues;
-  console.log("Generating terrain");
+  console.log("Loading song nr: " + numberOfSongs);
+  console.log("Loading URI: " + trackID[numberOfSongs]);
 
   var levelLoaded = $.Deferred();
   var songLoaded = $.Deferred();
 
-  generateTerrain(levelLoaded,trackID);
-  loadSong(songLoaded,trackID);
-
+  generateTerrain(levelLoaded,trackID[numberOfSongs]);
+  loadSong(songLoaded,trackID[numberOfSongs]);
+  numberOfSongs++;
   $.when(levelLoaded,songLoaded).done(
 
     function(levelResponse,songRespons){
-      console.log("Sound and terraing loaded");
-
+      startedDownload = false;
+      
       initTerrain(levelResponse.terrainValue);
       updatePublicVar(levelResponse.BPM);
-      playSound();
+
+      if(numberOfSongs > 1){
+        console.log((60 * 1000)/BPM );
+        setTimeout(function(){
+        playSound(trackID[numberOfSongs-1]);
+        }, (60 * 1000 * 9)/BPM );
+      }
+      else{
+        playSound(trackID[numberOfSongs-1]);
+      }
       update(levelResponse.BPM);
     }
 
@@ -80,8 +94,6 @@ function updatePublicVar(tempo){
 }
 
 function update() {
-  // console.log(BPM);
-  // console.log(msBetweenBeats);
   //Recursiv call next frame.
   requestAnimationFrame(update);
   //Time since last update
@@ -119,6 +131,25 @@ function logic(dt,space,up,w, callback){
   player.velY += gravity;
   player.grounded = false;
 
+  var lastBox = boxes[boxes.length - 1];
+
+  if(lastBox.x <= width + 1 - lastBox.width){
+    if(!startedDownload){
+      init();
+    }
+    var newHeight;
+    if(Math.abs(lastBox.y - height/2) ){
+      newHeight = lastBox.y;
+    }
+    else if( lastBox.y < height/2 ){
+      newHeight = lastBox.y + 2;
+    }
+    else{
+      newHeight = lastBox.y - 2;
+    }
+    createTerrainBox(newHeight,width,10,"#a5a5a5");
+  }
+
   for (var i = 0; i < boxes.length; i++) {
     var dir = colCheck(player, boxes[i]);
 
@@ -141,8 +172,8 @@ function logic(dt,space,up,w, callback){
   }
 
   if(player.grounded){
-         player.velY = 0;
-    }
+    player.velY = 0;
+  }
   player.y += player.velY;
 
   timeSinceLastBPM += dt;
@@ -157,20 +188,27 @@ function draw(){
   ctx.clearRect(0, 0, width, height);
 
   for (var i = 0; i < boxes.length; i++) {
-    var grassGradiant = ctx.createLinearGradient(boxes[i].x, boxes[i].y, boxWidth ,grassHeigth);
-    grassGradiant.addColorStop(0,"82ff5c");
-    grassGradiant.addColorStop(1,"d48b2d");
+    if(boxes[i].boxColor){
+      ctx.fill();
+      ctx.fillStyle = boxes[i].boxColor;
+      ctx.fillRect(boxes[i].x, boxes[i].y, boxes[i].width, boxes[i].height);
+    }
+    else{
+      var grassGradiant = ctx.createLinearGradient(boxes[i].x, boxes[i].y, boxes[i].width,grassHeigth);
+      grassGradiant.addColorStop(0,"82ff5c");
+      grassGradiant.addColorStop(1,"d48b2d");
 
-    var dirtGradiant = ctx.createLinearGradient(boxes[i].x, boxes[i].y + grassHeigth,boxWidth,boxes[i].height - grassHeigth);
-    dirtGradiant.addColorStop(0,"d48b2d");
-    dirtGradiant.addColorStop(1,"8b5a1b");
-    ctx.fill();
-    ctx.fillStyle= grassGradiant;
-    ctx.fillRect(boxes[i].x, boxes[i].y, boxes[i].width, grassHeigth);
+      var dirtGradiant = ctx.createLinearGradient(boxes[i].x, boxes[i].y + grassHeigth,boxes[i].width,boxes[i].height - grassHeigth);
+      dirtGradiant.addColorStop(0,"d48b2d");
+      dirtGradiant.addColorStop(1,"8b5a1b");
+      ctx.fill();
+      ctx.fillStyle= grassGradiant;
+      ctx.fillRect(boxes[i].x, boxes[i].y, boxes[i].width, grassHeigth);
 
-    ctx.fill();
-    ctx.fillStyle = dirtGradiant;   
-    ctx.fillRect(boxes[i].x, boxes[i].y + grassHeigth, boxes[i].width, boxes[i].height - grassHeigth);
+      ctx.fill();
+      ctx.fillStyle = dirtGradiant;   
+      ctx.fillRect(boxes[i].x, boxes[i].y + grassHeigth, boxes[i].width, boxes[i].height - grassHeigth);  
+    }
   }
 
   //Render Player.
@@ -179,20 +217,21 @@ function draw(){
   ctx.fillRect(player.x, player.y, player.width, player.height);
 }
 
-function createTerrainBox(Y,X,width){
+function createTerrainBox(Y,X,width,color){
   boxHeight = height - Y;
   boxes.push({
     x: X,
     y: Y,
     width: width,
-    height: boxHeight
+    height: boxHeight,
+    boxColor: color
   });
 }
 
 function initTerrain(values){
   for(var i = 0; i < values.length; i++){
-    var x = 100 + player.width / 2; 
-    if(i > 0){
+    var x = 100; 
+    if(boxes.length > 0){
       x = boxes[boxes.length-1].x + boxes[boxes.length-1].width;
     }
     createTerrainBox(values[i].y, x, values[i].width * boxWidth);
